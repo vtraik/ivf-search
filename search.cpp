@@ -11,12 +11,11 @@
 using namespace std;
 
 unordered_map<string,TYPE> valid = {
-    {"d",STRING}, {"q",STRING}, {"k",INT}, {"L",INT},
-    {"w",DOUBLE}, {"o",STRING}, {"N",INT}, {"R",INT},
-    {"type",STRING}, {"lsh",NOVAL}, {"range",BOOL}, {"kproj",INT},
-    {"M",INT}, {"hypercube",NOVAL}, {"kclusters",INT}, {"nprobe",INT},
-    {"ivfflat",NOVAL}, {"seed",INT}, {"nbits",INT}, {"ivfpq",NOVAL},
-    {"probes",INT}
+    {"d",STRING}, {"q",STRING}, {"k",INT},
+    {"o",STRING}, {"N",INT}, {"R",INT},
+    {"type",STRING}, {"range",BOOL},
+    {"M",INT}, {"kclusters",INT}, {"nprobe",INT},
+    {"ivfflat",NOVAL}, {"seed",INT}, {"nbits",INT}, {"ivfpq",NOVAL}
 };
 
 unordered_map<string,void*> value;

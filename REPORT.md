@@ -1,32 +1,28 @@
 # Clustering Analysis Report: IVF Indices
 
-## 1. Introduction
-In the field of high-dimensional vector search, finding the exact nearest neighbor is computationally expensive as the dataset grows (the "curse of dimensionality"). To address this, **Approximate Nearest Neighbor (ANN)** algorithms are used. 
-
-This report evaluates two popular indexing methods:
-* **IVFFlat (Inverted File Flat):** This algorithm clusters the vector space into **k** Voronoi cells. At search time, it only explores a subset of these cells (`nprobe`), significantly reducing the number of distance calculations.
-* **IVFPQ (Inverted File with Product Quantization):** This builds on the IVF structure but adds **Product Quantization**. It compresses vectors into short codes using sub-quantizers (**M**). This not only speeds up calculations using look-up tables but also drastically reduces the memory footprint of the index.
-
----
-
-## 2. Technical Specifications
+## 1. Technical Specifications
 The experiments were conducted to evaluate the trade-offs between search speed, memory, and accuracy (Recall).
 
-* **Hardware:** Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz.
-* **Methodology:** * Experiments were executed for $N=1$ using the first 100 test queries for each dataset.
+* **Hardware:** 
+    * CPU: Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz.
+    * RAM: 8Gb DDR4 2666MHz
+* **Methodology:**  
+    * Experiments were executed for $N=1$ using the first 100 test queries for each dataset.
     * Each parameter configuration was run 3 times, and the results presented are the average values.
     * **Parameters Tested:** `ivfflat(k, nprobe, seed)` and `ivfpq(k, nprobe, M, nbits)`.
     * **Clustering:** `kmeans++` was used for the initial clustering of centroids.
     * **Silhouette Score:** For the SIFT dataset, an approximate Silhouette value was calculated (using 500 vectors per cluster) because the exact calculation was computationally prohibitive.
-* **Notation:** The best values for each metric per column are highlighted in **bold**. In cases where bold text is absent, the best value is the mathematically optimal one for that specific metric.
+* **Notation:**  
+        The best values for each metric per column are highlighted in **bold**. In cases where bold text is absent, the best value is the mathematically optimal one for that specific metric.
 
 ---
 
-## 3. Experimental Results
+## 2. Experimental Results
 
 ### IVFFlat Tables
 
-#### SIFT Dataset
+#### SIFT(1M)
+
 |   k |   nprobe |   seed |      AF |   Recall@N |       QPS |   speedup |   tApproximate |    tTrue | silhouette |
 |----:|---------:|-------:|--------:|-----------:|----------:|----------:|---------------:|---------:|-----------:|
 |  50 |        1 |      1 | 1.03206 |       0.71 | 105.846   |  17.0229  |       0.009448 | 0.160828 |   0.011959 |
@@ -75,7 +71,9 @@ The experiments were conducted to evaluate the trade-offs between search speed, 
 | 500 |       80 |      7 | 1       |       1    |  11.4272  |   1.80338 |       0.087511 | 0.157815 |**0.175385** |
 | 500 |       80 |     31 | 1       |       1    |  11.2107  |   1.76427 |       0.0892   | 0.157374 |   0.125865 |
 
-#### MNIST Dataset
+
+#### MNIST
+
 |   k |   nprobe |   seed |      AF |   Recall@N |      QPS |   speedup |   tApproximate |    tTrue | silhouette |
 |----:|---------:|-------:|--------:|-----------:|---------:|----------:|---------------:|---------:|-----------:|
 |   5 |        1 |      1 | 1.01479 |       0.89 |  77.004  |   3.46834 |       0.012986 | 0.045041 |   0.07149  |
@@ -116,9 +114,115 @@ The experiments were conducted to evaluate the trade-offs between search speed, 
 | 100 |       20 |      7 | 1       |       1    |  57.0901 |   2.56948 |       0.017516 | 0.045007 |   0.075469 |
 | 100 |       20 |   1627 | 1       |       1    |  62.133  |   2.80337 |       0.016095 | 0.045119 |**0.079953** |
 
+
+### IVFpq Tables 
+
+#### SIFT
+
+|   k |   nprobe |   seed |   M |   nbits |      AF |   Recall@N |      QPS |   speedup |   tApproximate |    tTrue |   sil_coef |
+|----:|---------:|-------:|----:|--------:|--------:|-----------:|---------:|----------:|---------------:|---------:|-----------:|
+|  50 |        1 |      1 |   4 |       8 | 1.24819 |       0.13 |**864.505**|**129.405**|  **0.001157** | 0.149687 |   0.011959 |
+|  50 |        1 |      7 |   4 |       8 | 1.25563 |       0.12 | 851.665  | 127.312   |       0.001174 | 0.149486 |   0.001902 |
+|  50 |        1 |      1 |   8 |       8 | 1.20261 |       0.23 | 567.507  |  85.4172  |       0.001762 | 0.150513 |   0.011959 |
+|  50 |        1 |      7 |   8 |       8 | 1.19316 |       0.29 | 649.989  |  95.413   |       0.001538 | 0.146792 |   0.001902 |
+|  50 |        5 |      1 |   4 |       8 | 1.23569 |       0.14 | 192.278  |  28.2927  |       0.005201 | 0.147145 |   0.011959 |
+|  50 |        5 |      7 |   4 |       8 | 1.24629 |       0.14 | 198.334  |  29.1866  |       0.005042 | 0.147159 |   0.001902 |
+|  50 |        5 |      1 |   8 |       8 | 1.18984 |       0.25 | 138.878  |  20.4849  |       0.007201 | 0.147502 |   0.011959 |
+|  50 |        5 |      7 |   8 |       8 | 1.1779  |       0.29 | 142.022  |  20.8876  |       0.007041 | 0.147072 |   0.001902 |
+|  50 |       10 |      1 |   4 |       8 | 1.23569 |       0.14 | 105.132  |  15.4581  |       0.009512 | 0.147035 |   0.011959 |
+|  50 |       10 |      7 |   4 |       8 | 1.24629 |       0.14 | 105.181  |  15.4647  |       0.009507 | 0.14703  |   0.001902 |
+|  50 |       10 |      1 |   8 |       8 | 1.18984 |       0.25 |  75.9077 |  11.1529  |       0.013174 | 0.146928 |   0.011959 |
+|  50 |       10 |      7 |   8 |       8 | 1.1779  |       0.29 |  74.9948 |  11.03    |       0.013334 | 0.147077 |   0.001902 |
+| 100 |        5 |      1 |   4 |       8 | 1.26278 |       0.11 | 311.228  |  45.7874  |       0.003213 | 0.147119 |   0.114306 |
+| 100 |        5 |      7 |   4 |       8 | 1.25948 |       0.16 | 302.886  |  44.4374  |       0.003302 | 0.146713 |   0.076477 |
+| 100 |        5 |      1 |   8 |       8 | 1.19381 |       0.33 | 224.086  |  32.9441  |       0.004463 | 0.147015 |   0.114306 |
+| 100 |        5 |      7 |   8 |       8 | 1.18477 |       0.31 | 223.117  |  32.993   |       0.004482 | 0.147873 |   0.076477 |
+| 100 |       10 |      1 |   4 |       8 | 1.26183 |       0.11 | 166.813  |  24.5289  |       0.005995 | 0.147045 |   0.114306 |
+| 100 |       10 |      7 |   4 |       8 | 1.25906 |       0.17 | 165.898  |  24.4965  |       0.006028 | 0.14766  |   0.076477 |
+| 100 |       10 |      1 |   8 |       8 | 1.19381 |       0.33 | 118.888  |  17.4687  |       0.008411 | 0.146934 |   0.114306 |
+| 100 |       10 |      7 |   8 |       8 | 1.18477 |       0.31 | 118.411  |  17.4375  |       0.008445 | 0.147262 |   0.076477 |
+| 100 |       20 |      1 |   4 |       8 | 1.26183 |       0.11 |  90.7637 |  13.3886  |       0.011018 | 0.147511 |   0.114306 |
+| 100 |       20 |      7 |   4 |       8 | 1.25906 |       0.17 |  89.9869 |  13.2048  |       0.011113 | 0.146741 |   0.076477 |
+| 100 |       20 |      1 |   8 |       8 | 1.19381 |       0.33 |  64.2351 |   9.3993  |       0.015568 | 0.146326 |   0.114306 |
+| 100 |       20 |      7 |   8 |       8 | 1.18477 |       0.31 |  64.7357 |   9.47671 |       0.015447 | 0.146391 |   0.076477 |
+| 200 |       10 |      1 |   8 |       8 | 1.21899 |       0.28 | 173.556  |  25.4361  |       0.005762 | 0.146559 |   0.148605 |
+| 200 |       10 |     11 |   8 |       8 | 1.21432 |       0.22 | 178.987  |  26.3378  |       0.005587 | 0.147149 |   0.133531 |
+| 200 |       10 |      1 |  16 |       8 | 1.13698 |     **0.58**| 119.456  |  17.5432  |       0.008371 | 0.146858 |   0.148605 |
+| 200 |       10 |     11 |  16 |       8 | 1.14133 |       0.51 | 119.404  |  17.5336  |       0.008375 | 0.146843 |   0.133531 |
+| 200 |       20 |      1 |   8 |       8 | 1.21899 |       0.28 |  95.6688 |  14.1029  |       0.010453 | 0.147414 |   0.148605 |
+| 200 |       20 |     11 |   8 |       8 | 1.21432 |       0.22 |  97.4147 |  14.2759  |       0.010265 | 0.146547 |   0.133531 |
+| 200 |       20 |      1 |  16 |       8 | 1.13698 |      **0.58** |  64.7908 |   9.52716 |       0.015434 | 0.147045 |   0.148605 |
+| 200 |       20 |     11 |  16 |       8 | 1.14133 |       0.51 |  66.0879 |   9.7031  |       0.015131 | 0.146821 |   0.133531 |
+| 200 |       40 |      1 |   8 |       8 | 1.21899 |       0.28 |  54.6468 |   8.01766 |       0.018299 | 0.146718 |   0.148605 |
+| 200 |       40 |     11 |   8 |       8 | 1.21432 |       0.22 |  55.9302 |   8.20543 |       0.017879 | 0.146708 |   0.133531 |
+| 200 |       40 |      1 |  16 |       8 | 1.13698 |    **0.58** |  37.6295 |   5.52136 |       0.026575 | 0.146729 |   0.148605 |
+| 200 |       40 |     11 |  16 |       8 | 1.14133 |       0.51 |  38.3971 |   5.62202 |       0.026044 | 0.146418 |   0.133531 |
+| 300 |       10 |      1 |   8 |       8 | 1.20573 |       0.29 | 209.378  |  30.8546  |       0.004776 | 0.147363 |   0.14069  |
+| 300 |       10 |     17 |   8 |       8 | 1.21288 |       0.31 | 222.794  |  32.7067  |       0.004488 | 0.146802 |   0.155669 |
+| 300 |       10 |      1 |  16 |       8 | 1.13533 |       0.42 | 147.011  |  21.5721  |       0.006802 | 0.146738 |   0.14069  |
+| 300 |       10 |     17 |  16 |       8 | 1.13471 |       0.53 | 151.13   |  22.1573  |       0.006617 | 0.146611 |   0.155669 |
+| 300 |       30 |      1 |   8 |       8 | 1.20573 |       0.29 |  84.8316 |  12.4468  |       0.011788 | 0.146724 |   0.14069  |
+| 300 |       30 |     17 |   8 |       8 | 1.21288 |       0.31 |  86.475  |  12.6912  |       0.011564 | 0.146761 |   0.155669 |
+| 300 |       30 |      1 |  16 |       8 | 1.13463 |       0.44 |  59.188  |   8.68431 |       0.016895 | 0.146724 |   0.14069  |
+| 300 |       30 |     17 |  16 |       8 | 1.13418 |       0.55 |  59.9089 |   8.78425 |       0.016692 | 0.146627 |   0.155669 |
+| 300 |       60 |      1 |   8 |       8 | 1.20573 |       0.29 |  49.9668 |   7.32886 |       0.020013 | 0.146674 |   0.14069  |
+| 300 |       60 |     17 |   8 |       8 | 1.21288 |       0.31 |  50.7131 |   7.47533 |       0.019719 | 0.147404 |   0.155669 |
+| 300 |       60 |      1 |  16 |       8 | 1.13463 |       0.44 |  35.1047 |   5.14786 |       0.028486 | 0.146643 |   0.14069  |
+| 300 |       60 |     17 |  16 |       8 | 1.13418 |       0.55 |  35.1174 |   5.15561 |       0.028476 | 0.146811 |   0.155669 |
+| 500 |       20 |      1 |  16 |       8 | 1.14359 |       0.49 | 104.766  |  15.3692  |       0.009545 | 0.1467   |   0.122215 |
+| 500 |       20 |      7 |  16 |       8 |**1.13358**|       0.47 | 108.415  |  15.9272  |       0.009224 | 0.14691  |**0.175385** |
+| 500 |       40 |      1 |  16 |       8 | 1.14359 |       0.49 |  62.9255 |   9.22769 |       0.015892 | 0.146645 |   0.122215 |
+| 500 |       40 |      7 |  16 |       8 |**1.13358**|       0.47 |  62.9574 |   9.24208 |       0.015884 | 0.146799 | **0.175385** |
+
+
+#### MNIST
+
+|   k |   nprobe |   seed |   M |   nbits |        AF |   Recall@N |      QPS |   speedup |   tApproximate |      tTrue |   sil_coef |
+|----:|---------:|-------:|----:|--------:|----------:|-----------:|---------:|----------:|---------------:|-----------:|-----------:|
+|   5 |        1 |      1 |   4 |       8 |   1.05736 |       0.09 |**3409.83**|**157.043**|   **0.000293** |   0.046056 |   0.00236  |
+|   5 |        1 |      1 |   8 |       8 |   1.02946 |       0.28 | 2789.28  | 126.292   |       0.000359 |   0.045278 |   0.00236  |
+|   5 |        3 |      1 |   4 |       8 |   1.04747 |       0.07 | 1111.27  |  49.964   |       0.0009   |   0.044961 |   0.00236  |
+|   5 |        3 |      1 |   8 |       8 |**1.02246** |       0.28 |  649.243 |  29.2122  |       0.00154  |   0.044994 |   0.00236  |
+|  10 |        2 |      1 |   4 |       8 |   1.05421 |       0.19 | 1931.48  |  87.4546  |       0.000518 |   0.045278 |   0.008965 |
+|  10 |        2 |      1 |   8 |       8 |   1.02739 |       0.32 | 1506.37  |  67.9661  |       0.000664 |   0.045119 |   0.008965 |
+|  10 |        5 |      1 |   4 |       8 |   1.05324 |       0.19 |  806.225 |  36.2959  |       0.00124  |   0.04502  |   0.008965 |
+|  10 |        5 |      1 |   8 |       8 |   1.02628 |       0.33 |  726.282 |  32.7702  |       0.001377 |   0.045121 |   0.008965 |
+|  30 |        5 |      1 |   4 |       8 |   1.07431 |       0.15 |  909.026 |  40.9423  |       0.0011   |   0.04504  |   0.027028 |
+|  30 |        5 |      1 |   8 |       8 |   1.06359 |       0.24 |  871.321 |  39.0842  |       0.001148 |   0.044856 |   0.027028 |
+|  30 |       10 |      1 |   4 |       8 |   1.07431 |       0.15 |  461.079 |  20.8104  |       0.002169 |   0.045134 |   0.027028 |
+|  30 |       10 |      1 |   8 |       8 |   1.06356 |       0.24 |  428.892 |  19.2678  |       0.002332 |   0.044924 |   0.027028 |
+|  30 |       20 |      1 |   4 |       8 |   1.07431 |       0.15 |  230.809 |  10.385   |       0.004333 |   0.044994 |   0.027028 |
+|  30 |       20 |      1 |   8 |       8 |   1.06356 |       0.24 |  229.521 |  10.3127  |       0.004357 |   0.044931 |   0.027028 |
+|  50 |       10 |      1 |   8 |       8 |   1.05874 |       0.29 |  452.78  |  20.3682  |       0.002209 |   0.044985 |   0.140915 |
+|  50 |       20 |      1 |   8 |       8 |   1.05874 |       0.29 |  230.211 |  10.3674  |       0.004344 |   0.045035 |   0.140915 |
+| 100 |       10 |      1 |   8 |       8 |   1.0722  |       0.27 |  455.547 |  20.5003  |       0.002195 |   0.045002 |**0.323357**|
+| 100 |       10 |      1 |  16 |       8 |   1.0746  |       0.35 |  485.522 |  21.8317  |       0.00206  |   0.044965 |**0.323357**|
+| 100 |       30 |      1 |   8 |       8 |   1.0722  |       0.27 |  163.817 |   7.39416 |       0.006104 |   0.045137 |**0.323357**|
+| 100 |       30 |      1 |  16 |       8 |   1.07456 |   **0.36** |  168.777 |   7.60272 |       0.005925 |   0.045046 |**0.323357**|
+
 ---
 
-## 4. Conclusion: IVFFlat
+## 3. IVFFlat Graphs
+
+|  |  |
+|-------------|-------------|
+| ![](graphs/flat_rn.png) | ![](graphs/flat_qn.png) |
+
+
+|  |  |
+|-------------|-------------|
+| ![](graphs/flat_ar.png) | ![](graphs/flat_qr.png) |
+
+## 4. IVFpq Graphs
+![](graphs/pq_qn.png)
+![](graphs/pq_qn_sift.png)
+|  |  |
+|-------------|-------------|
+| ![](graphs/pq_ar.png) | ![](graphs/pq_qr.png) |
+
+---
+
+## 5. Conclusion: IVFFlat
 
 ### Parameter Selection:
 * **SIFT:** $k=500, \text{nprobe}=20, \text{seed}=7$
@@ -130,12 +234,13 @@ The value of $k$ is chosen based on the best silhouette score. Then, the combina
 
 ### Observations:
 * As the **nprobe** parameter increases, the **recall** increases as well. This is expected since the search space for the nearest neighbor expands. Consequently, larger search spaces increase search time, causing **QPS** to drop.
-* As the **AF** (Approximation Factor) approaches 1, the **recall** also approaches 1. This occurs because if the average distance ratio $\frac{dist\_approx}{dist\_true} \approx 1$, the approximate neighbors are identical to the true neighbors. AF improves with higher accuracy, which is tied to more clusters and probes.
+* As the **AF** (Approximation Factor) approaches 1, the **recall** also approaches 1. This occurs because if the average distance ratio $\frac{distApprox}{distTrue} \approx 1$, the approximate neighbors are identical to the true neighbors. AF improves with higher accuracy, which is tied to more clusters and probes.
 * **QPS** decreases as recall approaches 1.
 
 ---
 
-## 5. Conclusion: IVFPQ
+
+## 6. Conclusion: IVFPQ
 
 ### Parameter Selection:
 * **SIFT:** $k=500, \text{nprobe}=20, \text{seed}=7, M=16, \text{nbits}=8$
