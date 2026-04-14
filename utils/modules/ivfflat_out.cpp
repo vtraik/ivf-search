@@ -1,0 +1,93 @@
+#include <iostream>
+#include <chrono>
+#include <unordered_map>
+#include "knn.hpp"
+
+#define QUERIES 12
+
+using namespace std;
+
+template <typename T>
+void ivfflat_out(unordered_map<string,void*>& value, DS_CHOICE choice){
+    int seed = *(int*)value["seed"];
+    int k = *(int*)value["kclusters"];
+    int nprobe = *(int*)value["nprobe"];
+    int N = *(int*)value["N"];
+    int R = *(int*)value["R"];
+    bool do_range = *(bool*)value["range"];
+    string input = *(string*)value["d"];
+    string query = *(string*)value["q"];
+    string output = *(string*)value["o"];
+
+    DataSet<T> dataset(input,choice);
+    // uint32_t train_s = sqrt(dataset.get_size());
+    uint32_t train_s = 2000;
+    Ivfflat<T> ivf(dataset,seed,k,nprobe,N,R,train_s);
+    Metric<T,double> dist = L2;
+    Metric<T,T> dist2 = L2;
+    DataSet<T> dataset_test(query,choice,QUERIES);
+
+    ofstream out(output);
+    if(!out)
+        throw runtime_error ("could not open " + output + " for writing\n");
+
+    ivf.build(dataset);
+
+    out << "IVFFlat" << endl << endl;
+    double af = 0;
+    double avrg_aprox = 0;
+    double avrg_abs = 0;
+    int query_set_size = dataset_test.get_size();
+    double rec = 0.0;
+
+    vector<uint32_t> range_res;
+    vector<uint32_t>* range_ptr = do_range ? &range_res : nullptr;
+    for(int i=0; i<query_set_size; i++){
+        int hits = 0;
+        range_res.clear();
+        out << "Query: " << dataset_test[i]->get_id() << endl;
+        auto t1 = chrono::high_resolution_clock::now();
+        std::vector<DIST_ID> res = knn(dataset,*dataset_test[i],N,dist2);
+        auto t2 = chrono::high_resolution_clock::now();
+        double dur1 = chrono::duration_cast<chrono::duration<float>>(t2 - t1).count();
+        avrg_abs += dur1;
+
+        t1 = chrono::high_resolution_clock::now();
+        std::vector<DIST_ID> res_aprox = ivf.query(*dataset_test[i],dist,range_ptr);
+        t2 = chrono::high_resolution_clock::now();
+        double dur2 = chrono::duration_cast<chrono::duration<float>>(t2 - t1).count();
+        avrg_aprox += dur2;
+        for(int i=0; i<res_aprox.size(); ++i){
+            out << "Nearest neighbor-" << i+1 << " " << res_aprox[i].second << endl;
+            out << "distanceApproximate: " << res_aprox[i].first << endl;
+            out << "distanceTrue: " << res[i].first << endl;
+
+            af += res_aprox[i].first / res[i].first;
+
+            auto it = std::find_if(res_aprox.begin(), res_aprox.end(),
+                       [&res, i](const std::pair<double, uint32_t>& p) {
+                           return p.second == res[i].second;
+                       });
+            if(it != res_aprox.end())
+                hits++;
+            out << endl;
+        }
+        rec += ((double) hits) / res.size();
+
+        if(range_res.size() != 0){
+            out << "R-near neighbours" << endl;
+            for(auto neigh : range_res){
+                out << neigh << endl;
+            }
+            out << endl;
+        }
+    }
+
+    out << endl;
+
+    out << "Average AF: " << af / (query_set_size*N) << endl;
+    out << "Recall@N: " << rec / query_set_size << endl;
+    out << "QPS: " << query_set_size / avrg_aprox << endl;
+    out << "tApproximateAverage: " << avrg_aprox / query_set_size << endl;
+    out << "tTrueAverage: " <<  avrg_abs / query_set_size << endl;
+}
