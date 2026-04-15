@@ -49,12 +49,12 @@ This report evaluates two popular indexing methods:
 make
 ```
 - Run:
-`./search [flags] [arguments]`
 
 ``` sh
 ./search <args>
 ```
 - For Ivfflat:  
+
 | Flag | Description |
 | :--- |  :--- |
 | `-d` | Train dataset. |
