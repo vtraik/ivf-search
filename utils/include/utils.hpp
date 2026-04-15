@@ -4,12 +4,12 @@
 #include <vector>
 #include <fstream>
 #include <cstdint>
-/* #include <endian.h> */
+#include <endian.h>
 #include "Vector.hpp"
 
 #define DIST_ID std::pair<double,uint32_t>
 
-typedef enum{MNIST, SIFT, SWISSPROT} DS_CHOICE;
+typedef enum{MNIST, SIFT} DS_CHOICE;
 
 template <typename T1, typename T2>
 using Metric = double (*)(Vector<T1>&,Vector<T2>&,bool);
@@ -104,16 +104,6 @@ class DataSet {
                     datapoints.push_back(new DataPoint<T>(instream,vec_size,i));
                 }
                 vec_size = le32toh(vec_size);
-            }else if(choice == SWISSPROT){
-                // read swissprot format
-                if(!instream.is_open())
-                    throw std::runtime_error("cannot open file: " + filepath);
-
-                vec_size = 320;
-                uint32_t num_vec = size == 0 ? 50000 : size;
-                for(int i=0; i<num_vec; i++){
-                    datapoints.push_back(new DataPoint<T>(instream,vec_size,i));
-                }
             }
         }
 
@@ -141,21 +131,3 @@ class DataSet {
         }
 
 };
-
-
-double l2(const std::vector<float>& a, const std::vector<float>& b){
-    double s=0; for (size_t i=0;i<a.size(); ++i){ double t=a[i]-b[i]; s+=t*t; } return std::sqrt(s);
-}
-
-std::vector<std::pair<uint32_t,double>>
-brute_topk(const std::vector<std::vector<float>>& X, const std::vector<float>& q, int k){
-    std::vector<std::pair<uint32_t,double>> v; v.reserve(X.size());
-    for (uint32_t i=0;i<X.size(); ++i) v.emplace_back(i, l2(X[i], q));
-    if ((int)v.size() > k){
-        std::nth_element(v.begin(), v.begin()+k, v.end(),
-            [](auto&a,auto&b){ return a.second < b.second; });
-        v.resize(k);
-    }
-    std::sort(v.begin(), v.end(), [](auto&a,auto&b){ return a.second < b.second; });
-    return v;
-}

@@ -11,11 +11,11 @@
 using namespace std;
 
 unordered_map<string,TYPE> valid = {
-    {"d",STRING}, {"q",STRING}, {"k",INT},
-    {"o",STRING}, {"N",INT}, {"R",INT},
-    {"type",STRING}, {"range",BOOL},
-    {"M",INT}, {"kclusters",INT}, {"nprobe",INT},
-    {"ivfflat",NOVAL}, {"seed",INT}, {"nbits",INT}, {"ivfpq",NOVAL}
+    {"d",STRING}, {"q",STRING}, {"o",STRING},
+    {"N",INT}, {"R",INT}, {"type",STRING},
+    {"range",BOOL}, {"M",INT}, {"kclusters",INT},
+    {"nprobe",INT}, {"ivfflat",NOVAL}, {"seed",INT},
+    {"nbits",INT}, {"ivfpq",NOVAL}
 };
 
 unordered_map<string,void*> value;
@@ -39,15 +39,11 @@ try{
             ivfflat_out<uint8_t>(value,MNIST);
         else if(*(string*)value["type"] == "sift")
             ivfflat_out<float>(value,SIFT);
-        else if(*(string*)value["type"] == "swissprot")
-            ivfflat_out<float>(value,SWISSPROT);
     }else if(algos[c] == "ivfpq"){
         if(*(string*)value["type"] == "mnist")
             ivfpq_out<uint8_t>(value,MNIST);
         else if(*(string*)value["type"] == "sift")
             ivfpq_out<float>(value,SIFT);
-        else if(*(string*)value["type"] == "swissprot")
-            ivfpq_out<float>(value,SWISSPROT);
     }
 
     free_parser(value,valid);

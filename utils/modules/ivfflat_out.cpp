@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include "knn.hpp"
 
-#define QUERIES 12
+#define QUERIES 100
 
 using namespace std;
 
@@ -20,8 +20,7 @@ void ivfflat_out(unordered_map<string,void*>& value, DS_CHOICE choice){
     string output = *(string*)value["o"];
 
     DataSet<T> dataset(input,choice);
-    // uint32_t train_s = sqrt(dataset.get_size());
-    uint32_t train_s = 2000;
+    uint32_t train_s = sqrt(dataset.get_size());
     Ivfflat<T> ivf(dataset,seed,k,nprobe,N,R,train_s);
     Metric<T,double> dist = L2;
     Metric<T,T> dist2 = L2;

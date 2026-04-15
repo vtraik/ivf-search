@@ -8,6 +8,7 @@ The experiments were conducted to evaluate the trade-offs between search speed, 
     * RAM: 8Gb DDR4 2666MHz
 * **Methodology:**  
     * Experiments were executed for $N=1$ using the first 100 test queries for each dataset.
+    * Both were trained on a subset of the dataset (sqrt(N)).
     * Each parameter configuration was run 3 times, and the results presented are the average values.
     * **Parameters Tested:** `ivfflat(k, nprobe, seed)` and `ivfpq(k, nprobe, M, nbits)`.
     * **Clustering:** `kmeans++` was used for the initial clustering of centroids.

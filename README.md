@@ -49,22 +49,44 @@ This report evaluates two popular indexing methods:
 make
 ```
 - Run:
+`./search [flags] [arguments]`
 
 ``` sh
 ./search <args>
 ```
 - For Ivfflat:  
-./search –d \<input file\> –q \<query file\> –kclusters \<int\> -nprobe \<int\> -ο
-\<output file\>  
--Ν \<number of nearest neighbors\> -R \<radius\> -type \<flag\> -range \<true|false\>  
--ivfflat –seed \<int\>
+| Flag | Description |
+| :--- |  :--- |
+| `-d` | Train dataset. |
+| `-q` | Query dataset.  |
+| `-o` | Output file of ANN search. |
+| `-kclusters` | Number of clusters. |
+| `-nprobe` | Number of clusters to search in query time. |
+| `-N` | Number of Nearest Neighbors. |
+| `-type` | Dataset: MNIST/SIFT. |
+| `-ivfflat` | Algorithm to use. |
+| `-seed` | Seed for centroid init (kmeans++). |
+| `-range` | If range search is applied or not: true/false.  |
+| `-R` | Radius to search. |
+
 
 - For Ivfpq:  
-./search –d \<input file\> –q \<query file\> –kclusters \<int\> -nprobe \<int\> -M \<int\>
--ο \<output file\>  
--Ν \<number of nearest neighbors\> -R \<radius\> -type \<flag\> -nbits \<int\> -
-range \<true|false\>  
--ivfpq –seed \<int\> 
+
+| Flag | Description |
+| :--- |  :--- |
+| `-d` | Train dataset. |
+| `-q` | Query dataset. |
+| `-o` | Output file of ANN search. |
+| `-kclusters` | Number of clusters. |
+| `-nprobe` | Number of clusters to search in query time. |
+| `-N` | Number of Nearest Neighbors. |
+| `-M` | Number of subvectors (subspace training).|
+| `-nbits` | Number of clusters in subspaces (2^nbits).  |
+| `-type` | Dataset: MNIST/SIFT. |
+| `-ivfpq` | Algorithm to use. |
+| `-seed` | Seed for centroid init (kmeans++).|
+| `-range` | If range search is applied or not: true/false. |
+| `-R` | Radius to search. |
 
 ---
 
