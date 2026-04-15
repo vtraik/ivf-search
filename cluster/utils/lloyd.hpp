@@ -17,11 +17,6 @@ template <typename T,typename U>
 void lloyd(const DataSet<T>& ds, std::vector<DataPoint<U>*>& ds_subset,
 std::vector<Cluster<U>*>& clusters,
 std::mt19937& rng, uint32_t kclusters) {
-    // pick k centroids from subset randomly
-    // std::shuffle(ds_subset.begin(),ds_subset.end(),rng);
-    // for(int i=0; i<kclusters; ++i){
-    //     clusters.push_back(new Cluster<U>(ds_subset[i]->get_vector()));
-    // }
     initialize_centroids(ds_subset,clusters,rng,kclusters); // kmeans++ init step
     int it =1;
     while(true){
