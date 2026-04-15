@@ -91,4 +91,4 @@ make
 ---
 
 ## 3. Report
-In REPORT.md there is a report on these algorithms for the mnist/sift(1M) datasets.
+The file REPORT.md contains a report on these algorithms evaluated on the MNIST and SIFT(1M) datasets.
